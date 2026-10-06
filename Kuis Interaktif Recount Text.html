@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Interaktif: Recount Text SMP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0fdf4; }
+        .option-label { transition: all 0.2s ease-in-out; }
+        .option-label:hover { background-color: #e0f2fe; }
+        input[type="radio"]:checked + span { font-weight: bold; color: #1d4ed8; }
+        .correct-answer { background-color: #d1fae5 !important; border-color: #10b981 !important; color: #065f46; }
+        .wrong-answer { background-color: #fee2e2 !important; border-color: #ef4444 !important; color: #991b1b; }
+        .explanation { display: none; }
+        .show-explanation { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body class="text-gray-800 pb-20">
+
+    <div class="max-w-5xl mx-auto p-4 md:p-8">
+        <div class="bg-white rounded-2xl shadow-lg p-6 md:p-10 mb-8 border-t-8 border-green-500">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-center text-gray-800 mb-4">Latihan Soal Recount Text</h1>
+            <p class="text-center text-gray-500 mb-6">Pilih satu jawaban yang paling tepat. Anda dapat mengubah pilihan sebelum menekan tombol Selesai.</p>
+            
+            <div id="quiz-container" class="space-y-12">
+                <!-- Konten kuis akan di-render di sini oleh JavaScript -->
+            </div>
+
+            <div class="mt-12 text-center">
+                <button id="submit-btn" class="bg-green-600 hover:bg-green-700 text-white px-10 py-4 rounded-xl font-bold text-lg shadow-md transition transform hover:scale-105">Selesai & Cek Skor</button>
+            </div>
+        </div>
+
+        <div id="result-container" class="hidden bg-white rounded-2xl shadow-lg p-8 text-center border-t-8 border-blue-500 fixed bottom-0 left-0 right-0 md:relative md:bottom-auto z-50">
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Skor Akhir Anda</h2>
+            <div class="flex justify-center items-end gap-2 mb-4">
+                <span id="score-display" class="text-6xl font-black text-blue-600">0</span>
+                <span class="text-2xl text-gray-500 mb-1">/ 31</span>
+            </div>
+            <p id="score-message" class="text-lg text-gray-600 mb-6"></p>
+            <button id="retry-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-8 py-3 rounded-xl font-semibold transition">Ulangi Kuis</button>
+            <button id="review-btn" class="bg-blue-100 hover:bg-blue-200 text-blue-800 px-8 py-3 rounded-xl font-semibold transition ml-4">Lihat Pembahasan</button>
+        </div>
+    </div>
+
+    <div id="confirm-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-xl shadow-xl max-w-md w-full text-center">
+            <h3 class="text-xl font-bold mb-4 text-red-600">Perhatian!</h3>
+            <p id="confirm-message" class="text-gray-700 mb-6">Anda belum menjawab semua pertanyaan.</p>
+            <div class="flex justify-center gap-4">
+                <button id="cancel-submit" class="px-6 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 font-semibold transition">Batal</button>
+                <button id="proceed-submit" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold transition">Kumpulkan Saja</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                title: "TEKS 1",
+                content: "Hexa and I camped in the mountain last weekend. It was very beautiful and very quiet there. The air wash fresh. The location of our camp site was on the top of a hill, so we could see the scenery around us. It was amazing, It was green everywhere. It was also easy to get water as it was near a small river. You see the water is as clear as a crystal. We brought a lot of food from home. There were some noodles, cans of sardines, soft drink, and biscuits. Hexa brought cooking utensils for cooking noodle.<br><br>On the first day, we spent our time setting up tent and exploring the surrounding area. I was happy to find that there were many campers there. At night, after we had dinner, we met other campers. We catted and played guitar. It was fun meeting people who had the same hobby. It was not frightening at all at night in the forest as it was very noisy that night. We laughed and sang, and some campers even danced. We went to bed almost dawn. No wonder we got up late the following day. We hiked with others campers until afternoon. We did not realize that it was almost 5 in the afternoon and we had to go back home soon. It was really nice. I planned to go there again on the next long holiday. I would ask other friends to join.",
+                questions: [
+                    { id: 1, q: "What was amazing according to the writer of the text?", options: ["The location of the campsite", "The fresh air of the mountain", "The scenery around the campsite", "The small river in the mountain"], answer: 2, exp: "Teks menyatakan 'we could see the scenery around us. It was amazing'." },
+                    { id: 2, q: "What did the writer do on the second day of their camping activity?", options: ["They chatted and played guitar", "They had a greet and meet activity", "They hiked with the other campers", "They laughed and sang songs together"], answer: 2, exp: "Paragraf kedua menyebutkan mereka bangun terlambat pada hari berikutnya lalu mendaki bersama pekemah lain (hiked with others campers)." },
+                    { id: 3, q: "\"...we spent our time setting up the tent and exploring the surrounding are.\" (paragraph 2)<br>What does the underlined word mean?", options: ["Travelling through to learn about it", "Going backward and forward to watch something", "Observing carefully to examine something", "Looking for something in surrounding area"], answer: 0, exp: "Kata 'exploring' atau menjelajahi berarti bepergian untuk mempelajari suatu tempat (Travelling through to learn about it)." }
+                ]
+            },
+            {
+                title: "TEKS 2",
+                content: "Last week, Mr Damiri’s wife had an accident. Her youngest child, Yusuf, was at home when it happened. He was playing with his new toy car. Suddenly Yusuf heard his mother calling, “Help! Help!” he ran to the kitchen. His mother had burnt herself with some hot cooking oil. She was crying with pain and the pan was on ﬁre. Mr. Damiri had gone to the ofﬁce. The other children had gone to school.<br><br>Yusuf was too small to help his mother, and she was too frightened to speak sensibly to him. But he ran to the neighbour’s house and asked his neighbor to come and help his mother. The neighbor soon put out the ﬁre and took Yusuf’s mother to the clinic.<br><br>When Mr. Damiri came home, his wife told him what had happened. He was very proud of his son, “When you are a man, you will be just like your father,”she said.",
+                questions: [
+                    { id: 4, q: "Who took Mrs. Damiri to the clinic?", options: ["Her son", "Her husband", "Her neighbour", "Her children"], answer: 2, exp: "Teks menyatakan dengan jelas bahwa tetangga memadamkan api dan membawa ibu Yusuf ke klinik. Yusuf masih terlalu kecil, suami di kantor, dan anak-anak lain di sekolah." },
+                    { id: 5, q: "The main idea of the second paragraph is ....", options: ["Mrs. Damiri got accident", "Mr. Damiri was proud of his son", "Yusuf asked his neighbour to help", "Mr. Damiri and his other children had gone"], answer: 2, exp: "Paragraf kedua fokus menceritakan Yusuf yang meminta tolong kepada tetangganya." },
+                    { id: 6, q: "How did the neighbour help Mrs. Damiri?", options: ["He called Mrs. Damiri’s husband and ran to the kitchen", "He called the ﬁreman and put out the ﬁre", "He put out the ﬁre and took Mrs. Damiri ot the clinic", "He called the ﬁreman and advised Mrs. Damiri to stay calm"], answer: 2, exp: "Teks menyebutkan 'The neighbor soon put out the fire and took Yusuf's mother to the clinic'." }
+                ]
+            },
+            {
+                title: "TEKS 3",
+                content: "Last Friday, a friend of mine asked me to accompany him to buy a new shirt at a department store. We left home at 03.00 p.m. by motorcycle. As soon as we arrived there, we went to the clothes section. I let him choose one. An hour later, I got bored watching him confused in choosing a shirt. So I left him and went to the cassette counter. Thirty minutes later, I went back to the clothes section but I couldn't find him there. My cell phone was broken so I couldn't call him. I went to the parking area. I saw his motorcycle was there but I couldn't find him. I waited for him for a few moments then finally I gave up and decided to go home.<br><br>When I arrived home, my mother told me that my friend called. She said that he was in the department store looking for me. My mother asked me to come back to the department store. Reluctantly, I walked to the department store and you know what? When I arrived there his motorcycle was not in the parking area. He just went home. I was very tired. There was no other choice, I had to walk home again. When I arrived home, I was so tired. I was very angry but when I saw my friend's broad smile greet me in front of the door, I just could not help laughing.",
+                questions: [
+                    { id: 7, q: "The text above is about ....", options: ["An embarrassing day", "Shopping with mother", "The writer and his friend", "My friend and his motorcycle"], answer: 2, exp: "Teks ini secara keseluruhan menceritakan pengalaman (recount) penulis dan temannya saat pergi ke pusat perbelanjaan." },
+                    { id: 8, q: "The writer couldn't contact his friend because ....", options: ["He went home alone", "His cell phone was broken", "He was in the parking area", "His friend was still choosing a shirt"], answer: 1, exp: "Penulis menyatakan langsung di paragraf pertama: 'My cell phone was broken so I couldn't call him'." },
+                    { id: 9, q: "From the story above we can conclude that there was a problem because ....", options: ["The writer couldn't contact his friend", "The writer's friend was in the clothes section", "The writer and his friend couldn't ride the motorcycle", "The writer and his friend decided to go to the department store"], answer: 0, exp: "Akar masalah kesalahpahaman dalam cerita ini adalah ponsel penulis rusak sehingga mereka tidak bisa berkomunikasi." }
+                ]
+            },
+            {
+                title: "TEKS 4",
+                content: "It was the beginning of July, My parents and I were in a plane heading home from our vacation.<br><br>A crew announced the passengers that we were going to land in the airport in a few minutes. While listening to the announcement, I was looking outside through the window and saw how dark the sky was. It was raining heavily and lightnings sparked here and there.<br><br>Suddenly, I felt the plane went bumpy. The impact was low at the beginning, however it gradually became terrible. Everything shook terribly. People started to scream in fear. I hold my parents' hands. I heard my Dad was praying while Mom tried to soothe me.<br><br>Fortunately, our plane landed safely at the airport under that extreme weather. I thanked God for saving my parents and I.",
+                questions: [
+                    { id: 10, q: "What was the writer's mother doing during the turbulence?", options: ["She was holding her husband's hand", "She was calming the writer down", "She was praying for help", "She was crying for fear"], answer: 1, exp: "Teks menyebutkan '...Mom tried to soothe me'. Soothe bersinonim dengan calm down (menenangkan)." },
+                    { id: 11, q: "The turbulence was caused by ....", options: ["The bad weather", "The size of the plane", "The height of the flight", "The damage on one of the machines"], answer: 0, exp: "Teks mendeskripsikan cuaca buruk dengan hujan deras dan petir sebelum pesawat terguncang (turbulensi)." },
+                    { id: 12, q: "What is the main idea of paragraph 2?", options: ["The writer saw that it was raining heavily and lightning outside", "The writer was enjoying the announcement made by the crew", "A crew was announcing that they were going to land soon", "The lightning outside scared the writer"], answer: 0, exp: "Paragraf kedua berfokus pada observasi penulis tentang kondisi cuaca buruk di luar jendela saat pengumuman berlangsung." }
+                ]
+            },
+            {
+                title: "TEKS 5",
+                content: "Last summer, when mum and dad weren't feeling well, Tom was taking his dog, Paddy, for a walk. Suddenly there was a rabbit running across the path they were taking. Paddy barked very loud and the scared rabbit ran into the bushes. Although Tom was trying hard to grip the collar, Paddy was running after the rabbit. That was the last time he saw Paddy.<br><br>He tried to look for him for days. Finally, five weeks later, when Tom was out for a coffee at Motorway Cafe, his parents called. They were having lunch when they heard a dog barked outside the house. The hurriedly went out and there was Paddy wigling his tail.",
+                questions: [
+                    { id: 13, q: "\"That was the last time he saw Paddy\". The word \"he\" refers to ....", options: ["Father", "Tom", "Rabbit", "Paddy"], answer: 1, exp: "Kata ganti 'he' merujuk pada Tom yang sedang berusaha menahan kerah anjingnya." },
+                    { id: 14, q: "How did Paddy get lost?", options: ["He was hungry and searched for a food", "He followed motorbike riders away", "He saw a rabbit and ran after it", "He felt bored and took a walk"], answer: 2, exp: "Teks menyebutkan Paddy mengejar kelinci yang berlari ke arah semak-semak ('Paddy was running after the rabbit')." },
+                    { id: 15, q: "The text generally talks about ....", options: ["The coming back of the lost dog", "A long journey of the dog", "A holiday experience in Scotland", "The disappearance of a dog"], answer: 0, exp: "Teks ini menceritakan anjing yang hilang dan fokus akhirnya adalah keajaiban anjing tersebut kembali pulang (the coming back)." }
+                ]
+            },
+            {
+                title: "TEKS 6",
+                content: "I’ve got a painful experience that I went through last semester. I joined the cross country. We were running this race competing against several I other schools. The entire race was long and dreadful. It took place in the desert so it was really hot and humid. We ran up and down the hills.<br><br>It was getting awful after 10 minutes of the race. People who ran in front of me made me breathe the dust they created. It wasn’t so bad until my throat started to hurt. It was very painful. I had a hard time to catch my breath and I sweat a lot. I really hated it.<br><br>In the end I managed to finish the race. I felt really good after that. I felt fully alive again. That race was a horrible experience. That is the reason why I quitted the team a week later.",
+                questions: [
+                    { id: 16, q: "What does the second paragraph tell us about?", options: ["A cross country race", "An awful place in the mountain", "A good feeling after completing the race", "Painful incidents during the cross country"], answer: 3, exp: "Paragraf kedua merinci insiden menyakitkan: menghirup debu, sakit tenggorokan, dan sulit bernapas." },
+                    { id: 17, q: "From the text, we know that ....", options: ["The writer quitted and never made it to the finish line", "Although he had a painful throat, the writer could finish the race", "The race was a competition between students in the writer’s school", "The race route was so mountainous that the weather was cool and windy"], answer: 1, exp: "Teks menyatakan 'In the end I managed to finish the race' meskipun dia menderita sebelumnya." },
+                    { id: 18, q: "Why was the writer’s throat painful?", options: ["He sweat a lot", "He couldn’t breathe", "It was really hot and humid", "People in front of him created dust"], answer: 3, exp: "Teks menyatakan 'People who ran in front of me made me breathe the dust... my throat started to hurt'." }
+                ]
+            },
+            {
+                title: "TEKS 7",
+                content: "Last week, my school had a study tour to Saung Angklung Mang Udjo in Bandung. We started our journey very early in the morning. There are six buses to take our groups. We stopped in the rest area before went directly toward Bandung.<br><br>When we arrived at Saung Angklung Mang Udjo, we were welcome by hot Sundanese drinks known as Bandrek It was very unique. After that, we went around the gallery that sells the Sundanese handicrafts. We then walked to the hall, it was a rounded stage. Everybody sat anxiously.<br><br>The Angklung shows soon began with a performance of a large group of dancers and Angklung players. Then, the master of ceremony introduced herself and offered the audience a short course to play Angklung. She then taught the audience to play the Angklung, each rhythm. Soon after the audience knew the basic sound, we all played popular songs together. The master ceremony spoke in English too because there foreigners among the visitors. At the end of the show, we were asked to join the performing children to dance together.<br><br>We really enjoyed the performance of bamboo musical instruments combined with the wonderful dances and nice master of ceremony. We were all very cheerful and refreshed after the show.",
+                questions: [
+                    { id: 19, q: "What is the main idea of the first paragraph?", options: ["The trip to Saung Angklung Mang Udjo started very early", "The audience was cheerful and refreshed after the show", "The master of ceremony taught the audience to play Angklung", "The visitors were asked to join the performing children to dance"], answer: 0, exp: "Paragraf pertama memaparkan awal mula perjalanan yang dimulai sangat pagi (started very early)." },
+                    { id: 20, q: "What did the students do before the show?", options: ["Playing popular songs on Angklung", "Making Sundanese hot drink Bandrek", "Learning how to do traditional dances", "Going around the gallery that sells Sundanese handicraft"], answer: 3, exp: "Teks menyebutkan 'we went around the gallery that sells the Sundanese handicrafts. We then walked to the hall...' sebelum pertunjukan dimulai." },
+                    { id: 21, q: "Why did the master of ceremony speak in English?", options: ["The audience was all foreigners", "To make the performance more attractive", "It would encourage the audience to join the performance", "There were foreigners among the audiences in the hall"], answer: 3, exp: "Teks jelas menyatakan 'The master ceremony spoke in English too because there foreigners among the visitors'." }
+                ]
+            },
+            {
+                title: "TEKS 8",
+                content: "Last weekend I and my classmates went to the countryside to have a picnic. Before leaving, we made some sandwiches for lunch. We left quite early to avoid the traffic jam.<br><br>After driving for two hours, we arrived at a very nice place. It was near a river with some big trees around it. The driver parked the car under the tree. Seeing the clear an cool water of the river, my friends and I decided to swim. After having lunch together, we went around the area to enjoy the scenery. We saw some beautiful birds and butterflies.<br><br>After walking for about an hour, we decided to return to the car and go home. Unfortunately, we cloud not start up the car. Finally after sometime, we cloud make the car start up by pushing it. We were happy although we felt a bit tired when we got home.",
+                questions: [
+                    { id: 22, q: "What is the main idea of the second paragraph?", options: ["The writer made sandwiches for lunch", "The writer did some fun activities during their picnic", "After doing some activities, the writer went home by car", "Last weekend the writer prepared to have a picnic in the countryside"], answer: 1, exp: "Paragraf kedua menjelaskan aktivitas menyenangkan yang mereka lakukan: berenang, makan siang, dan menikmati pemandangan alam." },
+                    { id: 23, q: "Why did the writer and his friends decide to swim in the river?", options: ["They felt hot after having lunch", "They felt tired after having a walk", "The water was cool and clear", "It was a tiring day"], answer: 2, exp: "Teks menyatakan 'Seeing the clear and cool water of the river... decided to swim'." },
+                    { id: 24, q: "Because of the trouble they had at the end of their picnic, they probably ....", options: ["Got home a bit late", "Decided to swim again", "Had to spend the night there", "Decided not to have a picnic again"], answer: 0, exp: "Mobil mogok dan harus didorong pasti memakan waktu, sehingga probabilitas terbesarnya adalah mereka tiba di rumah sedikit terlambat." }
+                ]
+            },
+            {
+                title: "TEKS 9",
+                content: "Last year I joined the Chicago Marathon, my first marathon contest. I had to run 26,2 miles to complete it. It was hard.<br><br>At first, I just wanted to get the experience of joining a marathon. I thought it would be one life time experience. After finishing it, I changed my mind. I wanted to join another one. I was interested to complete at least one more marathon and improve my time. I also experienced a good feeling between participants and the spectators that made me happy. It was a very wonderful thing for me. So I decided that I had to join another marathon the following year.",
+                questions: [
+                    { id: 25, q: "What is the text about?", options: ["The writer's activities of watching Chicago marathon contest.", "The writer's wonderful feeling after watching marathon.", "The writer's good achievement in marathon.", "The changing of the writer's feeling after joining the marathon."], answer: 3, exp: "Teks menceritakan perubahan pikiran/perasaan penulis yang awalnya hanya coba-coba menjadi ketagihan ingin ikut maraton lagi." },
+                    { id: 26, q: "To improve his achievement, the writer ...", options: ["Asked for advice how to run well", "Practiced hard with other participants", "Planned to join another marathon", "Ran faster and faster"], answer: 2, exp: "Teks menyebutkan 'I wanted to join another one. I was interested to complete at least one more marathon and improve my time.' (Berencana ikut maraton lain)." },
+                    { id: 27, q: "What was the writer's intention when he decided to join his first marathon?", options: ["He would get the winner", "He just wanted to get an experience", "He planned to join another marathon", "He wanted to complete 26,2 miles run"], answer: 1, exp: "Teks menyatakan niat awalnya: 'At first, I just wanted to get the experience of joining a marathon'." },
+                    { id: 28, q: "\"... I change my mind.\" (Paragraph 2) The underlined word is closest in meaning to ...", options: ["Decision", "Ambition", "Thought", "Suggestion"], answer: 2, exp: "Kata 'mind' paling dekat maknanya dengan 'thought' (pikiran). Mengubah pikiran (change mind)." }
+                ]
+            },
+            {
+                title: "TEKS 10",
+                content: "It was almost 6 A.M. Andi was hurriedly packing up his things. He had to catch up the 7 A.M train to Surabaya. At 6,30 A.M a taxi was coming to pick him up. He asked the driver to rush because his train was at 7 A.M. The traffic was very crowded. When he arrived at the station, the time showed 7.15 A.M. The train had already left.",
+                questions: [
+                    { id: 29, q: "What can you learn from the text? Andi should have ...", options: ["Driven the car himself", "Left early", "Worn his watch", "Left his things"], answer: 1, exp: "Andi tertinggal kereta karena kemacetan dan berangkat terlalu mepet. Pelajarannya adalah ia seharusnya berangkat lebih awal (Left early)." },
+                    { id: 30, q: "Why was Andi late to arrive at the station? Because ...", options: ["He took taxi", "The driver was driving slowly", "He got up late", "The driver was late"], answer: 2, exp: "Teks menyebutkan Andi baru buru-buru berkemas jam 6 pagi untuk kereta jam 7, menyiratkan bahwa dia bangun kesiangan (got up late)." },
+                    { id: 31, q: "Andi arrived at the train station ... the train had already left.", options: ["But", "And", "So", "If"], answer: 0, exp: "Kata hubung yang tepat untuk menunjukkan keadaan berlawanan (tiba di stasiun TETAPI kereta sudah berangkat) adalah 'but'." }
+                ]
+            }
+        ];
+
+        const quizContainer = document.getElementById('quiz-container');
+        const submitBtn = document.getElementById('submit-btn');
+        const resultContainer = document.getElementById('result-container');
+        const scoreDisplay = document.getElementById('score-display');
+        const scoreMessage = document.getElementById('score-message');
+        const retryBtn = document.getElementById('retry-btn');
+        const reviewBtn = document.getElementById('review-btn');
+        
+        // Elemen Modal
+        const confirmModal = document.getElementById('confirm-modal');
+        const confirmMessage = document.getElementById('confirm-message');
+        const cancelSubmitBtn = document.getElementById('cancel-submit');
+        const proceedSubmitBtn = document.getElementById('proceed-submit');
+
+        function renderQuiz() {
+            quizContainer.innerHTML = '';
+            quizData.forEach((section) => {
+                // Buat Box untuk Teks Bacaan
+                const textSection = document.createElement('div');
+                textSection.className = 'bg-gray-50 border border-gray-200 rounded-xl p-5 md:p-8 mb-6';
+                textSection.innerHTML = `
+                    <div class="inline-block bg-blue-100 text-blue-800 font-bold px-3 py-1 rounded-md mb-4">${section.title}</div>
+                    <div class="text-gray-700 leading-relaxed text-justify">${section.content}</div>
+                `;
+                quizContainer.appendChild(textSection);
+
+                // Buat Pertanyaan dan Pilihan Ganda
+                section.questions.forEach((q) => {
+                    const questionBox = document.createElement('div');
+                    questionBox.className = 'bg-white border-2 border-gray-100 rounded-xl p-5 md:p-6 mb-6 shadow-sm question-item';
+                    questionBox.dataset.id = q.id;
+                    questionBox.dataset.answer = q.answer;
+
+                    let optionsHtml = '';
+                    const labels = ['A', 'B', 'C', 'D'];
+                    q.options.forEach((opt, optIndex) => {
+                        optionsHtml += `
+                            <label class="option-label flex items-start p-3 border border-gray-200 rounded-lg cursor-pointer mb-2 relative">
+                                <input type="radio" name="q${q.id}" value="${optIndex}" class="mt-1 h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                                <span class="ml-3 text-gray-700"><span class="font-semibold mr-2">${labels[optIndex]}.</span> ${opt}</span>
+                            </label>
+                        `;
+                    });
+
+                    questionBox.innerHTML = `
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4"><span class="text-blue-600 mr-1">${q.id}.</span> ${q.q}</h3>
+                        <div class="options-container space-y-2">
+                            ${optionsHtml}
+                        </div>
+                        <div class="explanation mt-4 p-4 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 rounded-r-lg text-sm">
+                            <strong>Pembahasan:</strong> ${q.exp}
+                        </div>
+                    `;
+                    quizContainer.appendChild(questionBox);
+                });
+            });
+        }
+
+        function calculateScore() {
+            let score = 0;
+            const questionItems = document.querySelectorAll('.question-item');
+            
+            questionItems.forEach(item => {
+                const qId = item.dataset.id;
+                const correctAnswer = parseInt(item.dataset.answer);
+                const options = item.querySelectorAll('label');
+                const selectedInput = document.querySelector(`input[name="q${qId}"]:checked`);
+                const explanation = item.querySelector('.explanation');
+                
+                // Nonaktifkan semua radio button agar tidak bisa diubah lagi
+                const allInputs = item.querySelectorAll('input[type="radio"]');
+                allInputs.forEach(input => input.disabled = true);
+                
+                // Reset styling kelas hijau/merah di setiap percobaan ulang
+                options.forEach(opt => {
+                    opt.classList.remove('correct-answer', 'wrong-answer');
+                });
+
+                if (selectedInput) {
+                    const selectedValue = parseInt(selectedInput.value);
+                    if (selectedValue === correctAnswer) {
+                        score++;
+                        options[selectedValue].classList.add('correct-answer');
+                    } else {
+                        options[selectedValue].classList.add('wrong-answer');
+                        options[correctAnswer].classList.add('correct-answer');
+                    }
+                } else {
+                    // Jika tidak dijawab, tandai jawaban yang benar saja
+                    options[correctAnswer].classList.add('correct-answer');
+                }
+                
+                // Tampilkan pembahasan
+                explanation.classList.add('show-explanation');
+            });
+
+            scoreDisplay.textContent = score;
+            if(score === 31) {
+                scoreMessage.textContent = "Sempurna! Anda menguasai materi dengan sangat baik.";
+            } else if (score >= 20) {
+                scoreMessage.textContent = "Kerja bagus! Anda sudah memahami sebagian besar materi.";
+            } else {
+                scoreMessage.textContent = "Jangan menyerah! Pelajari lagi pembahasannya dan coba lagi.";
+            }
+            
+            submitBtn.style.display = 'none';
+            resultContainer.classList.remove('hidden');
+        }
+
+        function resetQuiz() {
+            renderQuiz();
+            submitBtn.style.display = 'inline-block';
+            resultContainer.classList.add('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Logic Tombol Submit dengan Custom Modal
+        submitBtn.addEventListener('click', () => {
+            const totalAnswered = document.querySelectorAll('input[type="radio"]:checked').length;
+            if (totalAnswered < 31) {
+                confirmMessage.textContent = `Anda baru menjawab ${totalAnswered} dari 31 soal. Yakin ingin mengumpulkan sekarang?`;
+                confirmModal.classList.remove('hidden');
+            } else {
+                calculateScore();
+            }
+        });
+        
+        cancelSubmitBtn.addEventListener('click', () => {
+            confirmModal.classList.add('hidden');
+        });
+        
+        proceedSubmitBtn.addEventListener('click', () => {
+            confirmModal.classList.add('hidden');
+            calculateScore();
+        });
+
+        retryBtn.addEventListener('click', resetQuiz);
+        reviewBtn.addEventListener('click', () => {
+             document.getElementById('result-container').classList.add('md:relative', 'md:bottom-auto');
+             document.getElementById('result-container').classList.remove('fixed', 'bottom-0');
+             window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Merender kuis pertama kali saat halaman dimuat
+        renderQuiz();
+    </script>
+</body>
+</html>
